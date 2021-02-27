@@ -61,6 +61,7 @@ cat > '/etc/init.d/lwp' <<EOF
 # All rights reserved.
 #
 # Author: Elie Deloumeau
+# Editor: Carlos Faustino
 #
 # /etc/init.d/lwp
 #
@@ -82,19 +83,12 @@ USER="root"
 
 function start () {
         echo -n 'Starting server...'
-#       /sbin/start-stop-daemon --start --pidfile $PIDFILE \
-#               --user $USER \
-#               -b --make-pidfile \
-#               --chuid $USER \
-#               --chroot $WORK_DIR \
-#               --exec ../../../usr/bin/python $WORK_DIR/$SCRIPT
-        screen -dm bash -c 'cd /srv/lwp; python /srv/lwp/lwp.py'
+        screen -dm bash -c 'cd $WORK_DIR; python $WORK_DIR/$SCRIPT'
         echo 'done.'
         }
 
 function stop () {
         echo -n 'Stopping server...'
-        #/sbin/start-stop-daemon --stop --pidfile $PIDFILE --signal KILL --verbose
         kill -9 $(screen -ls | awk '/[0-9]{1,}\./ {print strtonum($1)}'); screen -wipe
         echo 'done.'
 }
