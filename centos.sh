@@ -43,8 +43,8 @@ python -c 'import flask' &> /dev/null || {
 
 
 hash git &> /dev/null || {
-        echo '+ Installing Git'
-       yum install -y git > /dev/null
+        echo '+ Installing Git and Screen'
+       yum install -y git screen > /dev/null
 }
 
 echo 'Cloning LXC Web Panel...'
@@ -66,39 +66,41 @@ cat > '/etc/init.d/lwp' <<EOF
 #
 ### BEGIN INIT INFO
 # Provides: lwp
-# Required-Start: \$local_fs \$network
-# Required-Stop: \$local_fs
+# Required-Start: $local_fs $network
+# Required-Stop: $local_fs
 # Default-Start: 2 3 4 5
 # Default-Stop: 0 1 6
 # Short-Description: LWP Start script
 ### END INIT INFO
 
 
-WORK_DIR="$INSTALL_DIR"
+WORK_DIR="/srv/lwp"
 SCRIPT="lwp.py"
-DAEMON="/usr/bin/python \$WORK_DIR/\$SCRIPT"
+DAEMON="/usr/bin/python $SCRIPT"
 PIDFILE="/var/run/lwp.pid"
 USER="root"
 
 function start () {
         echo -n 'Starting server...'
-        /sbin/start-stop-daemon --start --pidfile \$PIDFILE \\
-                --user \$USER --group \$USER \\
-                -b --make-pidfile \\
-                --chuid \$USER \\
-                --chdir \$WORK_DIR \\
-                --exec \$DAEMON
+#       /sbin/start-stop-daemon --start --pidfile $PIDFILE \
+#               --user $USER \
+#               -b --make-pidfile \
+#               --chuid $USER \
+#               --chroot $WORK_DIR \
+#               --exec ../../../usr/bin/python $WORK_DIR/$SCRIPT
+        screen -dm bash -c 'cd /srv/lwp; python /srv/lwp/lwp.py'
         echo 'done.'
         }
 
 function stop () {
         echo -n 'Stopping server...'
-        /sbin/start-stop-daemon --stop --pidfile \$PIDFILE --signal KILL --verbose
+        #/sbin/start-stop-daemon --stop --pidfile $PIDFILE --signal KILL --verbose
+        kill -9 $(screen -ls | awk '/[0-9]{1,}\./ {print strtonum($1)}'); screen -wipe
         echo 'done.'
 }
 
 
-case "\$1" in
+case "$1" in
         'start')
                 start
                 ;;
