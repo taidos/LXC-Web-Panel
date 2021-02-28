@@ -83,7 +83,7 @@ USER="root"
 
 function start () {
         echo -n 'Starting server...'
-        screen -dm bash -c 'cd $WORK_DIR; python $WORK_DIR/$SCRIPT'
+        screen -dm bash -c 'cd /srv/lwp; python /srv/lwp/lwp.py'
         echo 'done.'
         }
 
